@@ -1,11 +1,19 @@
 ---
-devnet_iosxe:
+cred_iosxe:
   username: developer
   password: C1sco12345
   secret: C1sco12345
 
-devnet_nxos:
+cred_nxos:
   username: admin
   password: Admin_1234!
   secret: Admin_1234!
+
+host_iosxe:
+#  - sandbox-iosxe-recomm-1.cisco.com
+  - sandbox-iosxe-latest-1.cisco.com
+
+host_nxos:
+  - sandbox-nxos-1.cisco.com
+
 

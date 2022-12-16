@@ -1,14 +1,11 @@
 from unittest import TestCase
-from main import func_yml, Login
+from main import func_yml, Login, Device
 
-cred_iosxe = func_yml('pass.yml', 'devnet_iosxe')
-host_iosxe = [
-    # 'sandbox-iosxe-recomm-1.cisco.com',
-    'sandbox-iosxe-latest-1.cisco.com',
-]
+cred_iosxe = func_yml('pass.yml', 'cred_iosxe')
+host_iosxe = func_yml('pass.yml', 'host_iosxe')
 
-cred_nxos = func_yml('pass.yml', 'devnet_nxos')
-host_nxos = ['sandbox-nxos-1.cisco.com']
+cred_nxos = func_yml('pass.yml', 'cred_nxos')
+host_nxos = func_yml('pass.yml', 'host_nxos')
 
 
 class Test(TestCase):
@@ -33,3 +30,9 @@ class Test(TestCase):
         else:
             self.fail()
 
+    def test_device(self):
+        self.device = Device(cred_iosxe, host_iosxe, 'cisco_ios')
+        if self.device:
+            self.assertTrue(self.device.login())
+        else:
+            self.fail()

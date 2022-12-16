@@ -38,9 +38,9 @@ class Login:
 
                 device.update(var_credentials)
 
-                with ConnectHandler(**device) as net_connect:
-                    net_connect.enable()
-                    self.output.append(net_connect)
+                net_connect = ConnectHandler(**device)
+                net_connect.enable()
+                self.output.append(net_connect)
 
             except exceptions as error:
                 print(error)
@@ -49,5 +49,32 @@ class Login:
         return self.output
 
 
+class Device(Login):
+    def __init__(self, var_credentials, var_hosts, var_device_type):
+        super().__init__(var_credentials, var_hosts, var_device_type)
+
+    def prompt(self):
+        net_connect = self.login()
+
+        output = []
+        for net in net_connect:
+            try:
+                display = net.find_prompt()
+                output.append(display)
+            except exceptions as error:
+                print(error)
+            # finally:
+            #     net.disconnect()
+
+        return output
+
+
+cred_iosxe = func_yml('pass.yml', 'cred_iosxe')
+host_iosxe = func_yml('pass.yml', 'host_iosxe')
+
+cred_nxos = func_yml('pass.yml', 'cred_nxos')
+host_nxos = func_yml('pass.yml', 'host_nxos')
+
 if __name__ == '__main__':
-    print(func_yml('pass.yml', 'devnet_iosxe'))
+    iosxe = Device(cred_iosxe, host_iosxe, 'cisco_ios')
+    print(iosxe.prompt())
