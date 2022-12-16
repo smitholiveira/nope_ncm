@@ -9,7 +9,7 @@ exceptions = (
 
 
 def func_yml(file_path_yaml, group):
-    """ Read credentials from a yaml file. """
+    """ Read key/value and list from a yaml file. """
     with open(file_path_yaml) as f:
         file_yaml = f.read()
     yaml_dict = yaml.load(file_yaml, Loader=yaml.FullLoader)
@@ -17,7 +17,7 @@ def func_yml(file_path_yaml, group):
 
 
 class Login:
-    def __init__(self, var_credentials: dict, var_hosts: list, var_device_type):
+    def __init__(self, var_credentials: dict, var_hosts, var_device_type):
         # self.var_credentials = var_credentials
         # self.var_hosts = var_hosts
         # self.var_device_type = var_device_type
@@ -35,9 +35,7 @@ class Login:
             }
 
             try:
-
                 device.update(var_credentials)
-
                 net_connect = ConnectHandler(**device)
                 net_connect.enable()
                 self.output.append(net_connect)
@@ -63,8 +61,46 @@ class Device(Login):
                 output.append(display)
             except exceptions as error:
                 print(error)
-            # finally:
-            #     net.disconnect()
+
+        return output
+
+    def show(self, var_command):
+        net_connect = self.login()
+
+        output = []
+        for net in net_connect:
+            for command in var_command:
+                try:
+                    display = net.send_command(command, max_loops=1000, delay_factor=5)
+                    output.append(display)
+                except exceptions as error:
+                    print(error)
+
+            return output
+
+    def config(self, var_command):
+        net_connect = self.login()
+
+        output = []
+        for net in net_connect:
+            try:
+                display = net.send_config_set(var_command, max_loops=1000, delay_factor=5)
+                output.append(display)
+            except exceptions as error:
+                print(error)
+
+        return output
+
+    def save(self):
+        net_connect = self.login()
+
+        output = []
+        for net in net_connect:
+            try:
+                display = net.save_config()
+                output.append(display)
+            except exceptions as error:
+                print(error)
 
         return output
 
@@ -78,3 +114,6 @@ host_nxos = func_yml('pass.yml', 'host_nxos')
 if __name__ == '__main__':
     iosxe = Device(cred_iosxe, host_iosxe, 'cisco_ios')
     print(iosxe.prompt())
+    print(iosxe.show(['sh clock', 'sh snmp location']))
+    print(iosxe.config(['ip host dns.google 8.8.8.8', 'ip host dns9.quad9.net 9.9.9.9']))
+    print(iosxe.save())
