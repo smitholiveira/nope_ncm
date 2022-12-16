@@ -1,7 +1,11 @@
 import yaml
 from netmiko import ConnectHandler, NetMikoAuthenticationException, NetMikoTimeoutException
 
-exceptions = (NetMikoAuthenticationException, NetMikoTimeoutException, Exception)
+
+exceptions = (
+    NetMikoAuthenticationException,
+    NetMikoTimeoutException,
+    Exception)
 
 
 def func_yml(file_path_yaml, group):
@@ -26,14 +30,20 @@ class Login:
                 'host': hosts,
                 # 'global_delay_factor': 2,
                 # "read_timeout_override": 90,
+                # 'banner_timeout': 20,
                 'session_log': 'output_high-level.log'
             }
 
-            device.update(var_credentials)
+            try:
 
-            with ConnectHandler(**device) as net_connect:
-                net_connect.enable()
-                self.output.append(net_connect)
+                device.update(var_credentials)
+
+                with ConnectHandler(**device) as net_connect:
+                    net_connect.enable()
+                    self.output.append(net_connect)
+
+            except exceptions as error:
+                print(error)
 
     def login(self):
         return self.output
