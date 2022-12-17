@@ -1,11 +1,41 @@
 import yaml
 from netmiko import ConnectHandler, NetMikoAuthenticationException, NetMikoTimeoutException
+from os import rename
+from os.path import isfile
 
 
 exceptions = (
     NetMikoAuthenticationException,
     NetMikoTimeoutException,
     Exception)
+
+
+def shuffle(file_name, ext1, ext2):
+    ext1 = f'-{ext1}'
+    ext2 = f'.{ext2}'
+
+    if isfile(f'{file_name}{ext1}'):
+        if isfile(f'{file_name}{ext1}{ext2}''1'):
+            if isfile(f'{file_name}{ext1}{ext2}''2'):
+                if isfile(f'{file_name}{ext1}{ext2}''3'):
+                    if isfile(f'{file_name}{ext1}{ext2}''4'):
+                        if isfile(f'{file_name}{ext1}{ext2}''5'):
+                            rename(f'{file_name}{ext1}{ext2}''2', f'{file_name}{ext1}{ext2}''1')
+                            rename(f'{file_name}{ext1}{ext2}''3', f'{file_name}{ext1}{ext2}''2')
+                            rename(f'{file_name}{ext1}{ext2}''4', f'{file_name}{ext1}{ext2}''3')
+                            rename(f'{file_name}{ext1}{ext2}''5', f'{file_name}{ext1}{ext2}''4')
+                            rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''5')
+                        else:
+                            rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''5')
+                    else:
+                        rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''4')
+                else:
+                    rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''3')
+            else:
+                rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''2')
+        else:
+            rename(f'{file_name}{ext1}', f'{file_name}{ext1}{ext2}''1')
+    open(f'{file_name}{ext1}', 'w')
 
 
 def func_yml(file_path_yaml, group):
@@ -105,6 +135,33 @@ class Device(Login):
         return output
 
 
+    def backup(self, folder):
+        net_connect = self.login()
+
+        var_command = 'sh run'
+
+        output = []
+        for net in net_connect:
+            try:
+                display = net.send_command(var_command, max_loops=1000, delay_factor=5)
+                output.append(display)
+
+                folder_file_name = f'{folder}/{net.host}'
+
+                # shuffle
+                shuffle(folder_file_name, 'confg', 'BAK')
+
+                # copy the 'sh ver' output to a file
+                for o in output:
+                    with open(f'{folder_file_name}-confg', 'a') as f:
+                        f.write(o)
+
+            except exceptions as error:
+                print(error)
+
+        return output
+
+
 cred_iosxe = func_yml('pass.yml', 'cred_iosxe')
 host_iosxe = func_yml('pass.yml', 'host_iosxe')
 
@@ -115,5 +172,6 @@ if __name__ == '__main__':
     iosxe = Device(cred_iosxe, host_iosxe, 'cisco_ios')
     print(iosxe.prompt())
     print(iosxe.show(['sh clock', 'sh snmp location']))
-    print(iosxe.config(['ip host dns.google 8.8.8.8', 'ip host dns9.quad9.net 9.9.9.9']))
+    print(iosxe.config(['no ip host dns.google 8.8.8.8', 'no ip host dns9.quad9.net 9.9.9.9']))
     print(iosxe.save())
+    print(iosxe.backup('tftp'))
