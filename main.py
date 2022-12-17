@@ -3,7 +3,6 @@ from netmiko import ConnectHandler, NetMikoAuthenticationException, NetMikoTimeo
 from os import rename
 from os.path import isfile
 
-
 exceptions = (
     NetMikoAuthenticationException,
     NetMikoTimeoutException,
@@ -106,7 +105,7 @@ class Device(Login):
                 except exceptions as error:
                     print(error)
 
-            return output
+        return output
 
     def config(self, var_command):
         net_connect = self.login()
@@ -134,7 +133,6 @@ class Device(Login):
 
         return output
 
-
     def backup(self, folder):
         net_connect = self.login()
 
@@ -147,13 +145,15 @@ class Device(Login):
                 output.append(display)
 
                 folder_file_name = f'{folder}/{net.host}'
+                print(folder_file_name)
 
                 # shuffle
                 shuffle(folder_file_name, 'confg', 'BAK')
 
                 # copy the 'sh ver' output to a file
                 for o in output:
-                    with open(f'{folder_file_name}-confg', 'a') as f:
+                    print(o)
+                    with open(f'{folder_file_name}-confg', 'w') as f:
                         f.write(o)
 
             except exceptions as error:
@@ -162,16 +162,26 @@ class Device(Login):
         return output
 
 
-cred_iosxe = func_yml('pass.yml', 'cred_iosxe')
-host_iosxe = func_yml('pass.yml', 'host_iosxe')
-
-cred_nxos = func_yml('pass.yml', 'cred_nxos')
-host_nxos = func_yml('pass.yml', 'host_nxos')
-
 if __name__ == '__main__':
-    iosxe = Device(cred_iosxe, host_iosxe, 'cisco_ios')
-    print(iosxe.prompt())
-    print(iosxe.show(['sh clock', 'sh snmp location']))
-    print(iosxe.config(['no ip host dns.google 8.8.8.8', 'no ip host dns9.quad9.net 9.9.9.9']))
-    print(iosxe.save())
-    print(iosxe.backup('tftp'))
+    cred_iosxe = func_yml('pass.yml', 'cred_iosxe')
+    host_iosxe = func_yml('pass.yml', 'host_iosxe')
+
+    cred_nxos = func_yml('pass.yml', 'cred_nxos')
+    host_nxos = func_yml('pass.yml', 'host_nxos')
+
+    # iosxe = Device(cred_iosxe, host_iosxe, 'cisco_ios')
+    # print(iosxe.prompt())
+    # print(iosxe.show(['sh clock', 'sh snmp location']))
+    # print(iosxe.config(['no ip host dns.google 8.8.8.8', 'no ip host dns9.quad9.net 9.9.9.9']))
+    # print(iosxe.save())
+    # print(iosxe.backup('tftp'))
+
+    cred_oliveiras = func_yml('pass.yml', 'cred_oliveiras')
+    host_oliveiras = func_yml('pass.yml', 'host_oliveiras')
+
+    oliveiras = Device(cred_oliveiras, host_oliveiras, 'cisco_ios')
+    # print(oliveiras.prompt())
+    # print(oliveiras.show(['sh clock', 'sh snmp location']))
+    # print(oliveiras.config(['ip host dns.google 8.8.8.8']))
+    # print(oliveiras.save())
+    print(oliveiras.backup('tftp'))
